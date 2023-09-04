@@ -214,10 +214,14 @@ public class Kernel extends Thread {
                         } else {
                             addresses[it] = Long.parseLong(tmp);
                         }
-                        if (addr < 0 || addr > address_limit) {
+                        if (addresses[it] < 0 || addresses[it] > address_limit) {
                             System.out.println("MemoryManagement: " + addr + ", Address out of range in " + commands);
                             System.exit(-1);
                         }
+                    }
+                    if (addresses[0] / block != addresses[1] / block) {
+                        System.out.println("MemoryManagement: " + addr + ", Address range spans pages in " + commands);
+                        System.exit(-1);
                     }
                     instructVector.addElement(new Instruction(command, addresses[0], addresses[1]));   
                 }
@@ -335,8 +339,8 @@ public class Kernel extends Thread {
         controlPanel.instructionValueLabel.setText(instruct.inst);
         controlPanel.addressValueLabel.setText(Long.toString(instruct.addr_min, addressradix) + " - "
                 + Long.toString(instruct.addr_max, addressradix));
-        long stepOfPage = 0x4000;
-        long stepOfSegment = 0x1000;
+        long stepOfPage = block;
+        long stepOfSegment = block / 4;
         long page_num = instruct.addr_min / stepOfPage;
         int segmentStart = (int)Math.floor((instruct.addr_min % stepOfPage) / stepOfSegment);
         int segmentEnd = (int)Math.floor((instruct.addr_max % stepOfPage) / stepOfSegment);
