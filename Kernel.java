@@ -1,6 +1,7 @@
 import java.lang.Thread;
 import java.io.*;
 import java.util.*;
+import java.util.ArrayList;
 // import Page;
 
 public class Kernel extends Thread {
@@ -22,7 +23,6 @@ public class Kernel extends Thread {
     public int runcycles;
     public long block = (int) Math.pow(2, 12);
     public static byte addressradix = 10;
-
     public void init(String commands, String config) {
         File f = new File(commands);
         command_file = commands;
@@ -221,10 +221,6 @@ public class Kernel extends Thread {
                         }
                     }
                     addresses[1] = size < 2 ? addresses[0] : addresses[1];
-                    if (addresses[0] / block != addresses[1] / block) {
-                        System.out.println("MemoryManagement: " + addr + ", Address range spans pages in " + commands);
-                        System.exit(-1);
-                    }
                     instructVector.addElement(new Instruction(command, addresses[0], addresses[1]));   
                 }
             }
@@ -346,7 +342,10 @@ public class Kernel extends Thread {
         long page_num = instruct.addr_min / stepOfPage;
         int segmentStart = (int)Math.floor((instruct.addr_min % stepOfPage) / stepOfSegment);
         int segmentEnd = (int)Math.floor((instruct.addr_max % stepOfPage) / stepOfSegment);
-        controlPanel.adressSegmentationLabel.setText("P(" + page_num + ")" + "(S" + segmentStart + ", S" + segmentEnd + ")");
+        if (instruct.addr_min / block != instruct.addr_max / block) {
+            controlPanel.adressSegmentationLabel.setText("ERROR");
+        }else{
+        controlPanel.adressSegmentationLabel.setText("P(" + page_num + ")" + "(S" + segmentStart + ", S" + segmentEnd + ")");}
         getPage(Virtual2Physical.pageNum(instruct.addr_min, virtPageNum, block));
         if (controlPanel.pageFaultValueLabel.getText() == "YES") {
             controlPanel.pageFaultValueLabel.setText("NO");
