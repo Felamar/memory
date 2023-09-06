@@ -198,14 +198,15 @@ public class Kernel extends Thread {
                     tmp = st.nextToken();
                     tmp = st.nextToken();
                     String addrType = new String(tmp);
-                    for(int it = 0; it < 2; it++){
+                    int size = st.countTokens();
+                    if (addrType.startsWith("random")) {
+                        addresses[0] = Common.randomLong(address_limit);
+                    }
+                    System.out.println(size);
+                    for(int it = 0; it < size; it++){
                         tmp = st.nextToken();
                         String auxAddr = new String(tmp);
-                        if (addrType.startsWith("random")) {
-                            addresses[it]   = Common.randomLong(address_limit);
-                            addresses[it+1] = Common.randomLong(address_limit);
-                            break;
-                        } else if (addrType.startsWith("bin")) {
+                        if (addrType.startsWith("bin")) {
                             addresses[it] = Long.parseLong(auxAddr, 2);
                         } else if (addrType.startsWith("oct")) {
                             addresses[it] = Long.parseLong(auxAddr, 8);
@@ -219,6 +220,7 @@ public class Kernel extends Thread {
                             System.exit(-1);
                         }
                     }
+                    addresses[1] = size < 2 ? addresses[0] : addresses[1];
                     if (addresses[0] / block != addresses[1] / block) {
                         System.out.println("MemoryManagement: " + addr + ", Address range spans pages in " + commands);
                         System.exit(-1);
