@@ -343,9 +343,9 @@ public class Kernel extends Thread {
     int segmentStart = (int) Math.floor((instruct.addr_min % stepOfPage) / stepOfSegment);
     int segmentEnd = (int) Math.floor((instruct.addr_max % stepOfPage) / stepOfSegment);
     if (instruct.addr_min / block != instruct.addr_max / block) {
-      controlPanel.adressSegmentationLabel.setText("ERROR");
+      controlPanel.address_segmentation_label.setText("ERROR");
     } else {
-      controlPanel.adressSegmentationLabel
+      controlPanel.address_segmentation_label
           .setText("P(" + page_num + ")" + "(S" + segmentStart + ", S" + segmentEnd + ")");
     }
     getPage(Virtual2Physical.pageNum(instruct.addr_min, virtPageNum, block));
@@ -421,7 +421,7 @@ public class Kernel extends Thread {
     controlPanel.timeValueLabel.setText("0");
     controlPanel.instructionValueLabel.setText("NONE");
     controlPanel.addressValueLabel.setText("NULL");
-    controlPanel.adressSegmentationLabel.setText("");
+    controlPanel.address_segmentation_label.setText("");
     controlPanel.pageFaultValueLabel.setText("NO");
     controlPanel.virtualPageValueLabel.setText("x");
     controlPanel.physicalPageValueLabel.setText("0");

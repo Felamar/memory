@@ -76,7 +76,7 @@ public class ControlPanel extends Frame
   Label timeValueLabel = new Label("0" , Label.LEFT) ;
   Label instructionValueLabel = new Label("NONE" , Label.LEFT) ;
   Label addressValueLabel = new Label("NULL" , Label.LEFT) ;
-  Label adressSegmentationLabel = new Label("NULL" , Label.LEFT) ;
+  Label address_segmentation_label = new Label("NULL" , Label.LEFT) ;
   Label pageFaultValueLabel = new Label("NO" , Label.LEFT) ;
   Label virtualPageValueLabel = new Label("x" , Label.LEFT) ;
   Label physicalPageValueLabel = new Label("0" , Label.LEFT) ;
@@ -523,8 +523,8 @@ public class ControlPanel extends Frame
     addressValueLabel.reshape(385,60+25,230,15);
     add( addressValueLabel );
 
-    adressSegmentationLabel.reshape(385,75+25,230,15);
-    add( adressSegmentationLabel );
+    address_segmentation_label.reshape(385,75+25,230,15);
+    add( address_segmentation_label );
 
     pageFaultValueLabel.reshape( 385,90+25,100,15 );
     add( pageFaultValueLabel );
