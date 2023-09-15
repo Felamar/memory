@@ -57,7 +57,7 @@ public class PageFault {
    *                       simulator, and allows one to modify the current
    *                       display.
    */
-  public static void replacePage(Vector mem, int virtPageNum, int replacePageNum, ControlPanel controlPanel) {
+  public static void replacePage(Vector mem, int virtPageNum, int replacePageNum, ControlPanel2 controlPanel) {
     int count = 0;
     int oldestPage = -1;
     int oldestTime = 0;
@@ -67,12 +67,12 @@ public class PageFault {
 
     while (!(mapped) || count != virtPageNum) {
       Page page = (Page) mem.elementAt(count);
-      if (page.physical != -1) {
+      if (page.getPhysicalAddress() != -1) {
         if (firstPage == -1) {
           firstPage = count;
         }
-        if (page.inMemTime > oldestTime) {
-          oldestTime = page.inMemTime;
+        if (page.getTimeInMemory() > oldestTime) {
+          oldestTime = page.getTimeInMemory();
           oldestPage = count;
           mapped = true;
         }
@@ -88,12 +88,12 @@ public class PageFault {
     Page page = (Page) mem.elementAt(oldestPage);
     Page nextpage = (Page) mem.elementAt(replacePageNum);
     controlPanel.removePhysicalPage(oldestPage);
-    nextpage.physical = page.physical;
-    controlPanel.addPhysicalPage(nextpage.physical, replacePageNum);
-    page.inMemTime = 0;
-    page.lastTouchTime = 0;
-    page.R = 0;
-    page.M = 0;
-    page.physical = -1;
+    nextpage.setPhysicalAddress(page.getPhysicalAddress());
+    controlPanel.addPhysicalPage(nextpage.getPhysicalAddress(), replacePageNum);
+    page.setTimeInMemory(0);
+    page.setTimeSinceTouched(0);
+    page.setReferenced(false);
+    page.setModified(false);
+    page.setPhysicalAddress(-1);
   }
 }

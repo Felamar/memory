@@ -10,8 +10,8 @@ public class Kernel2 extends Thread {
   private long address_limit;
   private boolean do_file_log;
   private boolean do_stdout_log;
-  private static byte address_radix = 10;
-  private ControlPanel control_panel;
+  public static byte address_radix = 10;
+  private ControlPanel2 control_panel;
   private String output_file = "tracefile";
   private String commands_path;
   private String config_path;
@@ -30,14 +30,16 @@ public class Kernel2 extends Thread {
     this.address_limit = no_virtual_pages * block_page_size - 1;
     this.pages_vector = new Vector<Page>();
     this.instructions_vector = new Vector<Instruction>();
-    init();
+    init(commands_path, config_path);
   }
 
-  public void init() {
-    if (config_path != null) {
+  public void init(String commands_path, String config_path) {
+    this.config_path = config_path;
+    this.commands_path = commands_path;
+    if (this.config_path != null) {
       // Read config file
     try {
-      File config_file = new File(config_path);
+      File config_file = new File(this.config_path);
       Scanner config_scanner = new Scanner(config_file);
       while (config_scanner.hasNextLine()) {
         String[] line = config_scanner.nextLine().split(" ");
@@ -99,7 +101,7 @@ public class Kernel2 extends Thread {
 
       config_scanner.close();
     } catch (FileNotFoundException e) {
-      System.out.println("Kernel2: error, file '" + config_path + "' does not exist.");
+      System.out.println("Kernel2: error, file '" + this.config_path + "' does not exist.");
       System.exit(-1);
     } catch (Exception e) {
       System.out.println("Kernel2: error, " + e.getMessage());
@@ -109,7 +111,7 @@ public class Kernel2 extends Thread {
 
     // Read commands file
     try {
-      File commands_file = new File(commands_path);
+      File commands_file = new File(this.commands_path);
       Scanner commands_scanner = new Scanner(commands_file);
       final int command = 0, type = 1, address_1 = 2, address_2 = 3;
 
@@ -128,7 +130,7 @@ public class Kernel2 extends Thread {
         commands_scanner.close();
       }
     } catch (FileNotFoundException e) {
-      System.out.println("Kernel2: error, file '" + commands_path + "' does not exist.");
+      System.out.println("Kernel2: error, file '" + this.commands_path + "' does not exist.");
       System.exit(-1);
     }
 
@@ -164,7 +166,7 @@ public class Kernel2 extends Thread {
     }
   }
 
-  public void setControlPanel(ControlPanel control_panel) {
+  public void setControlPanel(ControlPanel2 control_panel) {
     this.control_panel = control_panel;
   }
 
@@ -179,6 +181,11 @@ public class Kernel2 extends Thread {
     }
   }
 
+  public void getPage(int pageNum) {
+    Page page = (Page) pages_vector.elementAt(pageNum);
+    control_panel.paintPage(page);
+  }
+
   public void run() {
     step();
     while (this.runs < this.run_cycles) {
@@ -191,12 +198,14 @@ public class Kernel2 extends Thread {
       step();
     }
   }
+  public int getRuns() { return this.runs; }
+  public int getRunCycles() { return this.run_cycles; }
 
   public void step() {
     Instruction instruction = instructions_vector.elementAt(this.runs);
 
-    control_panel.instructionValueLabel.setText(instruction.toString());
-    control_panel.addressValueLabel.setText(
+    control_panel.instruction_Label.setText(instruction.toString());
+    control_panel.address_Label.setText(
       Long.toString(instruction.getMinAddress(), address_radix)
       + " - " + 
       Long.toString(instruction.getMaxAddress(), address_radix)
@@ -207,9 +216,9 @@ public class Kernel2 extends Thread {
     long segment_end = (int) Math.floor((instruction.getMaxAddress() % block_page_size) / segment_step);
     
     if (page_num != instruction.getMaxAddress() / block_page_size) {
-      control_panel.address_segmentation_label.setText("ERROR");
+      control_panel.segmentation_Label.setText("ERROR");
     } else {
-      control_panel.address_segmentation_label.setText("P(" + page_num + ") S(" + segment_start + " - " + segment_end + ")");
+      control_panel.segmentation_Label.setText("P(" + page_num + ") S(" + segment_start + " - " + segment_end + ")");
     }
 
     control_panel.paintPage(pages_vector.elementAt((int) page_num));
@@ -220,7 +229,7 @@ public class Kernel2 extends Thread {
     if (page.getPhysicalAddress() == -1){
       message = instruction.getInstruction() + " " + Long.toString(instruction.getMinAddress(), address_radix) + "... page fault";
       PageFault.replacePage(pages_vector, no_virtual_pages, (int) page_num, control_panel);
-      control_panel.pageFaultValueLabel.setText("YES");
+      control_panel.page_fault_Label.setText("YES");
     } else {
       page.setTimeSinceTouched(0);
 
@@ -245,27 +254,27 @@ public class Kernel2 extends Thread {
     }
 
     runs++;
-    control_panel.timeValueLabel.setText(Integer.toString(runs * 10) + " (ns)");
+    control_panel.time_Label.setText(Integer.toString(runs * 10) + " (ns)");
   }
 
   public void reset() {
     pages_vector.clear();
     instructions_vector.clear();
 
-    control_panel.statusValueLabel.setText("STOP");
-    control_panel.timeValueLabel.setText("0");
-    control_panel.instructionValueLabel.setText("NONE");
-    control_panel.addressValueLabel.setText("NULL");
-    control_panel.address_segmentation_label.setText("");
-    control_panel.pageFaultValueLabel.setText("NO");
-    control_panel.virtualPageValueLabel.setText("x");
-    control_panel.physicalPageValueLabel.setText("0");
-    control_panel.RValueLabel.setText("0");
-    control_panel.MValueLabel.setText("0");
-    control_panel.inMemTimeValueLabel.setText("0");
-    control_panel.lastTouchTimeValueLabel.setText("0");
-    control_panel.lowValueLabel.setText("0");
-    control_panel.highValueLabel.setText("0");
-    init();
+    control_panel.status_Label.setText("STOP");
+    control_panel.time_Label.setText("0");
+    control_panel.instruction_Label.setText("NONE");
+    control_panel.address_Label.setText("NULL");
+    control_panel.segmentation_Label.setText("");
+    control_panel.page_fault_Label.setText("NO");
+    control_panel.virtual_page_Label.setText("x");
+    control_panel.physical_page_Label.setText("0");
+    control_panel.referenced_Label.setText("0");
+    control_panel.modified_Label.setText("0");
+    control_panel.in_mem_time_Label.setText("0");
+    control_panel.last_touch_time_Label.setText("0");
+    control_panel.low_limit_address_Label.setText("0");
+    control_panel.high_limit_address_Label.setText("0");
+    init(commands_path, config_path);;
   }
 }
