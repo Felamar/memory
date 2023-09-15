@@ -39,18 +39,19 @@ public class Instruction {
     }
 
     public String getInstruction() {
-        return instruction;
+        return this.instruction;
     }
 
     public long getMinAddress() {
-        return min_address;
+        return this.min_address;
     }
 
     public long getMaxAddress() {
-        return max_address;
+        return this.max_address;
     }
 
     public void isInRange(long MAX) {
+
         if (min_address < 0 || min_address > MAX) {
             System.out.println("Instruction: error, address '" + min_address + "' is out of range.");
             System.exit(-1);
