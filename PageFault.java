@@ -1,7 +1,7 @@
 /* It is in this file, specifically the replacePage function that will
-   be called by MemoryManagement when there is a page fault.  The 
-   users of this program should rewrite PageFault to implement the 
-   page replacement algorithm.
+  be called by MemoryManagement when there is a page fault.  The 
+  users of this program should rewrite PageFault to implement the 
+  page replacement algorithm.
 */
 
 // This PageFault file is an example of the FIFO Page Replacement 
@@ -96,7 +96,41 @@ public class PageFault {
     page.setPhysicalAddress(-1);
   }
 
-  public static void replace_by_WSClock(Vector<Page> pages_vector, int no_virtual_pages, int page_ID, ControlPanel control_panel ){
+  public static int replace_by_WSClock(Vector<Page> pages_vector, int no_virtual_pages, int page_ID, 
+    ControlPanel control_panel, int current_time, int clock_hand){
+      
+    int i = clock_hand;
+    int frame_size = pages_vector.size();
+    final int TAU = 50;
+    boolean referenced;
+    boolean modified;
 
+    while (true){
+      i = (i + 1) % frame_size;
+      Page page_to_replace = pages_vector.get(i);
+      referenced = page_to_replace.getReferenced();
+      modified = page_to_replace.getModified();
+      page_to_replace.setReferenced(false);
+
+      if (referenced){
+        page_to_replace.setReferenced(false);
+        page_to_replace.setTimeSinceTouched(current_time);
+        continue;
+      } 
+      if (current_time - page_to_replace.getTimeSinceTouched() > TAU && modified){
+        page_to_replace.setReferenced(false);
+        continue;
+      }
+      if (current_time - page_to_replace.getTimeSinceTouched() > TAU && !modified){
+        int tr_aux = page_to_replace.getPhysicalAddress();
+        control_panel.removePhysicalPage(tr_aux);
+        Page new_page = pages_vector.get(page_ID);
+        new_page.setPhysicalAddress(tr_aux);
+        control_panel.addPhysicalPage(tr_aux, page_ID);
+        page_to_replace.setPhysicalAddress(-1);
+        return i;
+      }
+
+    }
   }
 }
