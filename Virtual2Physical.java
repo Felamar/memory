@@ -1,22 +1,6 @@
-import java.util.Vector;
-
-public class Virtual2Physical 
-{
-  public static int pageNum ( long memaddr , int numpages , long block ) 
-  {
-    int i = 0;
-    long high = 0;
-    long low = 0;
-    
-    for (i = 0; i <= numpages; i++) 
-    {
-      low = block * i;
-      high = block * ( i + 1 ); 
-      if ( low <= memaddr && memaddr < high ) 
-      {
-        return i;
-      }
-    } 
-    return -1;
+public class Virtual2Physical {
+  public static int pageNum(long memory_address, int no_pages, long block_size) {
+    long n_page = memory_address / block_size;
+    return n_page >= 0 && n_page < no_pages ? (int) n_page : -1;
   }
 }
