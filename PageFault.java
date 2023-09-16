@@ -57,7 +57,7 @@ public class PageFault {
    *                       simulator, and allows one to modify the current
    *                       display.
    */
-  public static void replacePage(Vector mem, int virtPageNum, int replacePageNum, ControlPanel2 controlPanel) {
+  public static void replacePage(Vector<Page> mem, int virtPageNum, int replacePageNum, ControlPanel controlPanel) {
     int count = 0;
     int oldestPage = -1;
     int oldestTime = 0;
@@ -95,5 +95,9 @@ public class PageFault {
     page.setReferenced(false);
     page.setModified(false);
     page.setPhysicalAddress(-1);
+  }
+
+  public static void replace_by_WSClock(Vector<Page> pages_vector, int no_virtual_pages, int page_ID, ControlPanel control_panel ){
+
   }
 }

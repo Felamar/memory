@@ -2,8 +2,8 @@ import java.applet.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
 
-public class ControlPanel2 extends Frame {
-  public Kernel2 kernel;
+public class ControlPanel extends Frame {
+  public Kernel kernel;
   public Button run_button;
   public Button step_button;
   public Button reset_button;
@@ -27,7 +27,7 @@ public class ControlPanel2 extends Frame {
   public Button[] button_pages = new Button[no_virtual_pages];
   public Label[] label_pages = new Label[no_virtual_pages];
 
-  ControlPanel2(String title){
+  ControlPanel(String title){
     super(title);
     for(int i = 0; i < no_virtual_pages; i++){
       this.button_pages[i] = new Button("Page " + i);
@@ -53,7 +53,7 @@ public class ControlPanel2 extends Frame {
     this.high_limit_address_Label = new Label("0" , Label.LEFT) ;
   }
 
-  public void init(Kernel2 p_kernel, String commands, String config){
+  public void init(Kernel p_kernel, String commands, String config){
     this.kernel = p_kernel;
     this.kernel.setControlPanel(this);
     setLayout(null);
@@ -267,8 +267,8 @@ public class ControlPanel2 extends Frame {
     this.modified_Label.setText(Boolean.toString(page.getModified()));
     this.in_mem_time_Label.setText(Integer.toString(page.getTimeInMemory()));
     this.last_touch_time_Label.setText(Integer.toString(page.getTimeSinceTouched()));
-    this.low_limit_address_Label.setText(Long.toString(page.getLowerMemoryLimit(), Kernel2.address_radix));
-    this.high_limit_address_Label.setText(Long.toString(page.getUpperMemoryLimit(), Kernel2.address_radix));
+    this.low_limit_address_Label.setText(Long.toString(page.getLowerMemoryLimit(), Kernel.address_radix));
+    this.high_limit_address_Label.setText(Long.toString(page.getUpperMemoryLimit(), Kernel.address_radix));
   }
 
   public void setStatus(String status){

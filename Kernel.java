@@ -2,7 +2,7 @@ import java.lang.Thread;
 import java.io.*;
 import java.util.*;
 
-public class Kernel2 extends Thread {
+public class Kernel extends Thread {
   private int runs;
   private int run_cycles;
   private int no_virtual_pages;
@@ -11,7 +11,7 @@ public class Kernel2 extends Thread {
   private boolean do_file_log;
   private boolean do_stdout_log;
   public static byte address_radix = 10;
-  private ControlPanel2 control_panel;
+  private ControlPanel control_panel;
   private String output_file = "tracefile";
   private String commands_path = "";
   private String config_path = "";
@@ -60,7 +60,7 @@ public class Kernel2 extends Thread {
           break;
 
           case "addressradix":
-          Kernel2.address_radix = Byte.parseByte(line[1]);
+          Kernel.address_radix = Byte.parseByte(line[1]);
           break;
 
           case "numpages":
@@ -166,7 +166,7 @@ public class Kernel2 extends Thread {
     }
   }
 
-  public void setControlPanel(ControlPanel2 control_panel) {
+  public void setControlPanel(ControlPanel control_panel) {
     this.control_panel = control_panel;
   }
 
