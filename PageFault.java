@@ -62,7 +62,6 @@ public class PageFault {
     int oldestPage = -1;
     int oldestTime = 0;
     int firstPage = -1;
-    int map_count = 0;
     boolean mapped = false;
 
     while (!(mapped) || count != virtPageNum) {
