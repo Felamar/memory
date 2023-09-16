@@ -1,5 +1,6 @@
 import java.applet.*;
 import java.awt.*;
+import java.awt.event.ActionListener;
 
 public class ControlPanel2 extends Frame {
   public Kernel2 kernel;
@@ -29,113 +30,158 @@ public class ControlPanel2 extends Frame {
   ControlPanel2(String title){
     super(title);
     for(int i = 0; i < no_virtual_pages; i++){
-      button_pages[i] = new Button("Page " + i);
-      label_pages[i] = new Label(null, Label.CENTER);
+      this.button_pages[i] = new Button("Page " + i);
+      this.label_pages[i] = new Label(null, Label.CENTER);
     }
-    run_button               = new Button("Run");
-    step_button              = new Button("Step");
-    reset_button             = new Button("Reset");
-    exit_button              = new Button("Exit");
-    status_Label             = new Label("STOP" , Label.LEFT) ;
-    time_Label               = new Label("0" , Label.LEFT) ;
-    instruction_Label        = new Label("NONE" , Label.LEFT) ;
-    address_Label            = new Label("NULL" , Label.LEFT) ;
-    segmentation_Label       = new Label("NULL" , Label.LEFT) ;
-    page_fault_Label         = new Label("NO" , Label.LEFT) ;
-    virtual_page_Label       = new Label("x" , Label.LEFT) ;
-    physical_page_Label      = new Label("0" , Label.LEFT) ;
-    referenced_Label         = new Label("0" , Label.LEFT) ;
-    modified_Label           = new Label("0" , Label.LEFT) ;
-    in_mem_time_Label        = new Label("0" , Label.LEFT) ;
-    last_touch_time_Label    = new Label("0" , Label.LEFT) ;
-    low_limit_address_Label  = new Label("0" , Label.LEFT) ;
-    high_limit_address_Label = new Label("0" , Label.LEFT) ;
+    this.run_button               = new Button("Run");
+    this.step_button              = new Button("Step");
+    this.reset_button             = new Button("Reset");
+    this.exit_button              = new Button("Exit");
+    this.status_Label             = new Label("STOP" , Label.LEFT) ;
+    this.time_Label               = new Label("0" , Label.LEFT) ;
+    this.instruction_Label        = new Label("NONE" , Label.LEFT) ;
+    this.address_Label            = new Label("NULL" , Label.LEFT) ;
+    this.segmentation_Label       = new Label("NULL" , Label.LEFT) ;
+    this.page_fault_Label         = new Label("NO" , Label.LEFT) ;
+    this.virtual_page_Label       = new Label("x" , Label.LEFT) ;
+    this.physical_page_Label      = new Label("0" , Label.LEFT) ;
+    this.referenced_Label         = new Label("0" , Label.LEFT) ;
+    this.modified_Label           = new Label("0" , Label.LEFT) ;
+    this.in_mem_time_Label        = new Label("0" , Label.LEFT) ;
+    this.last_touch_time_Label    = new Label("0" , Label.LEFT) ;
+    this.low_limit_address_Label  = new Label("0" , Label.LEFT) ;
+    this.high_limit_address_Label = new Label("0" , Label.LEFT) ;
   }
 
   public void init(Kernel2 p_kernel, String commands, String config){
-    kernel = p_kernel;
-    kernel.setControlPanel(this);
+    this.kernel = p_kernel;
+    this.kernel.setControlPanel(this);
     setLayout(null);
     setBackground(Color.white);
     setForeground(Color.black);
     setSize(635, 545);
-    setFont(new Font("Helvetica", Font.PLAIN, 12));
+    setFont(new Font("Courier", Font.PLAIN, 12));
 
-    run_button.setForeground(Color.decode("#2b2b2b"));
-    run_button.setBackground(Color.decode("#94b3b5"));
-    run_button.setBounds(0, 25, 70, 15);
-    add(run_button);
+    this.run_button.setForeground(Color.decode("#2b2b2b"));
+    this.run_button.setBackground(Color.decode("#94b3b5"));
+    this.run_button.setBounds(0, 25, 70, 15);
+    this.run_button.addActionListener(new ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent e) {
+      setStatus("RUN");
+      run_button.setEnabled(false);
+      step_button.setEnabled(false);
+      reset_button.setEnabled(false);
+      kernel.run();
+      setStatus("STOP");
+      reset_button.setEnabled(true);
+      }
+    });
+    add(this.run_button);
 
-    step_button.setForeground(Color.decode("#2b2b2b"));
-    step_button.setBackground(Color.decode("#94b3b5"));
-    step_button.setBounds(70, 25, 70, 15);
-    add(step_button);
+    this.step_button.setForeground(Color.decode("#2b2b2b"));
+    this.step_button.setBackground(Color.decode("#94b3b5"));
+    this.step_button.setBounds(70, 25, 70, 15);
+    this.step_button.addActionListener(new ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent e) {
+      setStatus("STEP");
+      if(kernel.getRuns() != kernel.getRunCycles()){ 
+        kernel.step(); 
+      } else { 
+        step_button.setEnabled(false);
+        run_button.setEnabled(false);
+      }
+      setStatus("STOP");
+      }
+    });
+    add(this.step_button);
 
-    reset_button.setForeground(Color.decode("#2b2b2b"));
-    reset_button.setBackground(Color.decode("#94b3b5"));
-    reset_button.setBounds(140, 25, 70, 15);
-    add(reset_button);
+    this.reset_button.setForeground(Color.decode("#2b2b2b"));
+    this.reset_button.setBackground(Color.decode("#94b3b5"));
+    this.reset_button.setBounds(140, 25, 70, 15);
+    this.reset_button.addActionListener(new ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent e) {
+      setStatus("RESET");
+      run_button.setEnabled(true);
+      step_button.setEnabled(true);
+      reset_button.setEnabled(false);
+      kernel.reset();
+      reset_button.setEnabled(true);
+      setStatus("STOP");
+      }
+    });
+    add(this.reset_button);
 
-    exit_button.setForeground(Color.decode("#2b2b2b"));
-    exit_button.setBackground(Color.decode("#94b3b5"));
-    exit_button.setBounds(210, 25, 70, 15);
-    add(exit_button);
+    this.exit_button.setForeground(Color.decode("#2b2b2b"));
+    this.exit_button.setBackground(Color.decode("#94b3b5"));
+    this.exit_button.setBounds(210, 25, 70, 15);
+    this.exit_button.addActionListener(new ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent e) {
+      System.exit(0);
+      }
+    });
+    add(this.exit_button);
 
     for(int i = 0; i < no_virtual_pages; i++){
-      int x_offset = 140 * (i % (no_virtual_pages / 2));
-
-      button_pages[i].setForeground(Color.decode("#2b2b2b"));
-      button_pages[i].setBackground(Color.decode("#94b3b5"));
-      button_pages[i].setBounds(x_offset, 55 + i * 15, 70, 15);
+      int x_offset = 140 * (int)(i / (no_virtual_pages / 2));
+      
+      int aux = i;
+      this.button_pages[i].setForeground(Color.decode("#2b2b2b"));
+      this.button_pages[i].setBackground(Color.decode("#94b3b5"));
+      this.button_pages[i].setBounds(x_offset, 55 + (i % (no_virtual_pages / 2)) * 15, 70, 15);
+      this.button_pages[i].addActionListener(new ActionListener() {
+        public void actionPerformed(java.awt.event.ActionEvent e) {
+          kernel.getPage(aux);
+        }
+      });
       add(button_pages[i]);
       
-      label_pages[i].setBounds(x_offset + 70, 55 + i * 15, 70, 15);
-      label_pages[i].setForeground(Color.red);
-      label_pages[i].setFont(new Font("Helvetica", Font.PLAIN, 10));
-      add(label_pages[i]);
+      this.label_pages[i].setBounds(x_offset + 70, 55 + i % (no_virtual_pages / 2) * 15, 70, 15);
+      this.label_pages[i].setForeground(Color.red);
+      this.label_pages[i].setFont(new Font("Courier", Font.PLAIN, 10));
+      add(this.label_pages[i]);
     }
 
-    status_Label.setBounds(345, 25, 100, 15);
-    add(address_Label);
+    this.status_Label.setBounds(400, 25, 100, 15);
+    add(this.address_Label);
 
-    time_Label.setBounds(345, 40 , 100, 15);
-    add(time_Label);
+    this.time_Label.setBounds(400, 40 , 100, 15);
+    add(this.time_Label);
 
-    instruction_Label.setBounds(345, 70 , 100, 15);
-    add(instruction_Label);
+    this.instruction_Label.setBounds(400, 70 , 100, 15);
+    add(this.instruction_Label);
 
-    address_Label.setBounds(345, 85 , 100, 15);
-    add(address_Label);
+    this.address_Label.setBounds(400, 85 , 100, 15);
+    add(this.address_Label);
 
-    segmentation_Label.setBounds(345, 100 , 100, 15);
-    add(segmentation_Label);
+    this.segmentation_Label.setBounds(400, 100 , 100, 15);
+    add(this.segmentation_Label);
 
-    page_fault_Label.setBounds(345, 115 , 100, 15);
-    add(page_fault_Label);
+    this.page_fault_Label.setBounds(400, 115 , 100, 15);
+    add(this.page_fault_Label);
 
-    virtual_page_Label.setBounds(345, 145 , 100, 15);
-    add(virtual_page_Label);
+    this.virtual_page_Label.setBounds(400, 145 , 100, 15);
+    add(this.virtual_page_Label);
 
-    physical_page_Label.setBounds(345, 160 , 100, 15);
-    add(physical_page_Label);
+    this.physical_page_Label.setBounds(400, 160 , 100, 15);
+    add(this.physical_page_Label);
 
-    referenced_Label.setBounds(345, 175 , 100, 15);
-    add(referenced_Label);
+    this.referenced_Label.setBounds(400, 175 , 100, 15);
+    add(this.referenced_Label);
 
-    modified_Label.setBounds(345, 190 , 100, 15);
-    add(modified_Label);
+    this.modified_Label.setBounds(400, 190 , 100, 15);
+    add(this.modified_Label);
 
-    in_mem_time_Label.setBounds(345, 205 , 100, 15);
-    add(in_mem_time_Label);
+    this.in_mem_time_Label.setBounds(400, 205 , 100, 15);
+    add(this.in_mem_time_Label);
 
-    last_touch_time_Label.setBounds(345, 220 , 100, 15);
-    add(last_touch_time_Label);
+    this.last_touch_time_Label.setBounds(400, 220 , 100, 15);
+    add(this.last_touch_time_Label);
 
-    low_limit_address_Label.setBounds(345, 250 , 100, 15);
-    add(low_limit_address_Label);
+    this.low_limit_address_Label.setBounds(400, 250 , 100, 15);
+    add(this.low_limit_address_Label);
 
-    high_limit_address_Label.setBounds(345, 265 , 100, 15);
-    add(high_limit_address_Label);
+    this.high_limit_address_Label.setBounds(400, 265 , 100, 15);
+    add(this.high_limit_address_Label);
 
     Label virtual_one_Label = new Label("Virtual", Label.CENTER);
     virtual_one_Label.setBounds(0, 35 , 70, 15);
@@ -143,7 +189,7 @@ public class ControlPanel2 extends Frame {
 
     Label virtual_two_Label = new Label("Virtual", Label.CENTER);
     virtual_two_Label.setBounds(140, 35 , 70, 15);
-    add(virtual_one_Label);
+    add(virtual_two_Label);
 
     Label physical_one_Label = new Label("Physical", Label.CENTER);
     physical_one_Label.setBounds(70, 35 , 70, 15);
@@ -209,79 +255,32 @@ public class ControlPanel2 extends Frame {
     high_limit_address_Label.setBounds(285, 265 , 100, 15);
     add(high_limit_address_Label);
 
-    kernel.init(commands, config);
+    this.kernel.init(commands, config);
 
     setVisible(true);
   }
 
   public void paintPage(Page page){
-    virtual_page_Label.setText(Integer.toString(page.getID()));
-    physical_page_Label.setText(Integer.toString(page.getPhysicalAddress()));
-    referenced_Label.setText(Boolean.toString(page.getReferenced()));
-    modified_Label.setText(Boolean.toString(page.getModified()));
-    in_mem_time_Label.setText(Integer.toString(page.getTimeInMemory()));
-    last_touch_time_Label.setText(Integer.toString(page.getTimeSinceTouched()));
-    low_limit_address_Label.setText(Long.toString(page.getLowerMemoryLimit(), Kernel2.address_radix));
-    high_limit_address_Label.setText(Long.toString(page.getUpperMemoryLimit(), Kernel2.address_radix));
+    this.virtual_page_Label.setText(Integer.toString(page.getID()));
+    this.physical_page_Label.setText(Integer.toString(page.getPhysicalAddress()));
+    this.referenced_Label.setText(Boolean.toString(page.getReferenced()));
+    this.modified_Label.setText(Boolean.toString(page.getModified()));
+    this.in_mem_time_Label.setText(Integer.toString(page.getTimeInMemory()));
+    this.last_touch_time_Label.setText(Integer.toString(page.getTimeSinceTouched()));
+    this.low_limit_address_Label.setText(Long.toString(page.getLowerMemoryLimit(), Kernel2.address_radix));
+    this.high_limit_address_Label.setText(Long.toString(page.getUpperMemoryLimit(), Kernel2.address_radix));
   }
 
   public void setStatus(String status){
-    status_Label.setText(status);
+    this.status_Label.setText(status);
   }
 
   public void addPhysicalPage(int page_num, int physical_address){
-    label_pages[physical_address].setText(Integer.toString(page_num));
+    this.label_pages[physical_address].setText(Integer.toString(page_num));
   }
 
   public void removePhysicalPage(int physical_address){
-    label_pages[physical_address].setText(null);
-  }
-
-  public void action(AWTEvent e, Object arg){
-    if(e.getSource() == run_button){
-      setStatus("RUN");
-      run_button.setEnabled(false);
-      step_button.setEnabled(false);
-      reset_button.setEnabled(false);
-      kernel.run();
-      setStatus("STOP");
-      reset_button.setEnabled(true);
-      return;
-    }
-    if(e.getSource() == step_button){
-      setStatus("STEP");
-      if(kernel.getRuns() != kernel.getRunCycles()){ 
-        kernel.step(); 
-      } else { 
-        step_button.setEnabled(false);
-        run_button.setEnabled(false);
-      }
-      setStatus("STOP");
-      return;
-    }
-    if(e.getSource() == reset_button){
-      setStatus("RESET");
-      run_button.setEnabled(true);
-      step_button.setEnabled(true);
-      reset_button.setEnabled(false);
-      kernel.reset();
-      reset_button.setEnabled(true);
-      setStatus("STOP");
-      return;
-    }
-    if(e.getSource() == exit_button){
-      System.exit(0);
-    }
-    if(e.getSource() instanceof Button){
-      Button button = (Button) e.getSource();
-      for(int i = 0; i < no_virtual_pages; i++){
-        if(button == button_pages[i]){
-          kernel.getPage(i);
-          return;
-        }
-      }
-    }
-    return;
+    this.label_pages[physical_address].setText(null);
   }
 
 }

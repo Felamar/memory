@@ -38,6 +38,6 @@ public class Common {
     }
 
     public static long randomLong(long MAX) {
-        return (long) Math.random() * MAX;
+        return (long) (Math.random() * MAX);
     }
 }

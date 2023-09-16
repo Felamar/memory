@@ -13,27 +13,22 @@ public class Kernel2 extends Thread {
   public static byte address_radix = 10;
   private ControlPanel2 control_panel;
   private String output_file = "tracefile";
-  private String commands_path;
-  private String config_path;
+  private String commands_path = "";
+  private String config_path = "";
   private Vector<Page> pages_vector;
   private Vector<Instruction> instructions_vector;
   private static final String lineSeparator = System.getProperty("line.separator");
 
-  Kernel2(String commands_path, String config_path) {
+  public void init(String commands_path, String config_path) {
     this.no_virtual_pages = 63;
     this.block_page_size = 0x1000;
     this.do_file_log = false;
     this.do_stdout_log = false;
     this.runs = 0;
-    this.config_path = config_path;
-    this.commands_path = commands_path;
+    this.run_cycles = 0;
     this.address_limit = no_virtual_pages * block_page_size - 1;
     this.pages_vector = new Vector<Page>();
     this.instructions_vector = new Vector<Instruction>();
-    init(commands_path, config_path);
-  }
-
-  public void init(String commands_path, String config_path) {
     this.config_path = config_path;
     this.commands_path = commands_path;
     if (this.config_path != null) {
@@ -51,6 +46,8 @@ public class Kernel2 extends Thread {
 
           case "log_file":
           this.output_file = line[1].toLowerCase();
+          File out = new File(this.output_file);
+          if (out.exists()) { out.delete(); }
           break;
 
           case "pagesize":
@@ -68,7 +65,7 @@ public class Kernel2 extends Thread {
 
           case "numpages":
           no_virtual_pages = Integer.parseInt(line[1]);
-          if (no_virtual_pages < 2 || no_virtual_pages > 63) {
+          if (no_virtual_pages < 2 || no_virtual_pages > 64) {
             throw new Exception("MemoryManagement: numpages out of bounds.");
           }
           address_limit = no_virtual_pages * block_page_size - 1;
@@ -80,7 +77,7 @@ public class Kernel2 extends Thread {
       }
       config_scanner.close();
 
-      for (int i = 0; i <= no_virtual_pages; i++) {
+      for (int i = 0; i < no_virtual_pages; i++) {
         long high = (i + 1) * block_page_size - 1;
         long low = i * block_page_size;
         pages_vector.add(new Page(i, -1, false, false, 0, 0, high, low));
@@ -118,24 +115,27 @@ public class Kernel2 extends Thread {
       while (commands_scanner.hasNextLine()) {
         String[] line = commands_scanner.nextLine().split(" ");
         Instruction instruction;
-        if (line[command] != "READ" && line[command] != "WRITE") { continue; }
-        if (line[type].toLowerCase() == "random") {
+        if (!line[command].equals("READ") && !line[command].equals("WRITE")) { continue; }
+        if (line[type].toLowerCase().equals("random")) {
           instruction = new Instruction(line[command], Common.randomLong(address_limit));
-        } else {
+        } else if (line.length == 3) {
+          instruction = new Instruction(line[command], line[type], line[address_1], null);
+          instruction.isInRange(address_limit);
+        }else{
           instruction = new Instruction(line[command], line[type], line[address_1], line[address_2]);
           instruction.isInRange(address_limit);
         }
-        instructions_vector.add(instruction);
+        this.instructions_vector.add(instruction);
 
-        commands_scanner.close();
       }
+      commands_scanner.close();
     } catch (FileNotFoundException e) {
       System.out.println("Kernel2: error, file '" + this.commands_path + "' does not exist.");
       System.exit(-1);
-    }
+    } catch (IllegalStateException e){}
 
-    this.run_cycles = instructions_vector.size();
-    if (run_cycles < 1) {
+    this.run_cycles = this.instructions_vector.size();
+    if (this.run_cycles < 1) {
       System.out.println("Kernel2: error, no instructions to run.");
       System.exit(-1);
     }
@@ -202,9 +202,9 @@ public class Kernel2 extends Thread {
   public int getRunCycles() { return this.run_cycles; }
 
   public void step() {
-    Instruction instruction = instructions_vector.elementAt(this.runs);
+    Instruction instruction = this.instructions_vector.elementAt(this.runs);
 
-    control_panel.instruction_Label.setText(instruction.toString());
+    control_panel.instruction_Label.setText(instruction.getInstruction());
     control_panel.address_Label.setText(
       Long.toString(instruction.getMinAddress(), address_radix)
       + " - " + 
@@ -258,8 +258,8 @@ public class Kernel2 extends Thread {
   }
 
   public void reset() {
-    pages_vector.clear();
-    instructions_vector.clear();
+    this.pages_vector.clear();
+    this.instructions_vector.clear();
 
     control_panel.status_Label.setText("STOP");
     control_panel.time_Label.setText("0");

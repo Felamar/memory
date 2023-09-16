@@ -12,8 +12,8 @@ import java.util.*;
 
 public class MemoryManagement {
   public static void main(String[] args) {
-    ControlPanel controlPanel;
-    Kernel kernel;
+    ControlPanel2 controlPanel;
+    Kernel2 kernel;
 
     if (args.length < 1 || args.length > 2) {
       System.out.println("Usage: 'java MemoryManagement <COMMAND FILE> <PROPERTIES FILE>'");
@@ -44,8 +44,8 @@ public class MemoryManagement {
       }
     }
 
-    kernel = new Kernel();
-    controlPanel = new ControlPanel("Memory Management");
+    kernel = new Kernel2();
+    controlPanel = new ControlPanel2("Memory Management");
     if (args.length == 1) {
       controlPanel.init(kernel, args[0], null);
     } else {

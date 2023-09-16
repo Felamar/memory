@@ -2,25 +2,25 @@ public class Instruction {
     private String instruction;
     private long min_address;
     private long max_address;
-
+    
     Instruction(String instruction, String type, String min_address, String max_address) {
         this.instruction = instruction;
         byte radix = 10;
         switch (type) {
             case "bin":
-                radix = 2;
-                break;
+            radix = 2;
+            break;
 
             case "oct":
-                radix = 8;
-                break;
+            radix = 8;
+            break;
 
             case "hex":
-                radix = 16;
-                break;
+            radix = 16;
+            break;
 
             default:
-                break;
+            break;
         }
         this.min_address = Long.parseLong(min_address, radix);
         this.max_address = max_address != null ? Long.parseLong(max_address, radix) : this.min_address;
