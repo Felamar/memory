@@ -27,7 +27,7 @@ public class ControlPanel2 extends Frame {
   public Button[] button_pages = new Button[no_virtual_pages];
   public Label[] label_pages = new Label[no_virtual_pages];
 
-  ControlPanel2(String title){
+  public ControlPanel2(String title){
     super(title);
     for(int i = 0; i < no_virtual_pages; i++){
       this.button_pages[i] = new Button("Page " + i);
