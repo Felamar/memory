@@ -57,7 +57,7 @@ public class PageFault {
    *                       simulator, and allows one to modify the current
    *                       display.
    */
-  public static void replacePage(Vector mem, int virtPageNum, int replacePageNum, ControlPanel2 controlPanel) {
+  public static void replacePage(Vector mem, int virtPageNum, int replacePageNum, MemoryView controlPanel) {
     int count = 0;
     int oldestPage = -1;
     int oldestTime = 0;

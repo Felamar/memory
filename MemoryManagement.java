@@ -1,49 +1,60 @@
 // The main MemoryManagement program, created by Alexander Reeder, 2000 Nov 19
+// Refactorized by Felamar and miguehm, 2023 Sep 13
 
 import java.applet.*;
 import java.awt.*;
 import java.io.*;
 import java.util.*;
-// import ControlPanel;
-// import PageFault;
-// import Virtual2Physical;
-// import Common;
-// import Page;
 
 public class MemoryManagement {
   public static void main(String[] args) {
-    ControlPanel2 controlPanel;
-    Kernel2 kernel;
+    MemoryView controlPanel;
+    MemoryModel kernel;
+    MemoryController memoryController;
 
-    if (args.length < 1 || args.length > 2) {
-      System.out.println("Usage: 'java MemoryManagement <COMMAND FILE> <PROPERTIES FILE>'");
-      System.exit(-1);
-    }
+    String commands_path = args[0];
+    String config_path = args[1];
 
-    File f = new File(args[0]);
+    // check if we have command file and prop file (prop are optional)
+    // overload the memoryController method
+    memoryController = new MemoryController(commands_path, config_path, "Memory Management");
 
-    if (!(f.exists())) {
-      System.out.println("MemoryM: error, file '" + f.getName() + "' does not exist.");
-      System.exit(-1);
-    }
-    if (!(f.canRead())) {
-      System.out.println("MemoryM: error, read of " + f.getName() + " failed.");
-      System.exit(-1);
-    }
-
-    if (args.length == 2) {
-      f = new File(args[1]);
-
-      if (!(f.exists())) {
-        System.out.println("MemoryM: error, file '" + f.getName() + "' does not exist.");
-        System.exit(-1);
+    // include inside MemoryModel class instead
+    try {
+      if (args.length < 1 || args.length > 2) {
+        throw new InsufficientArgumentsException();
       }
-      if (!(f.canRead())) {
-        System.out.println("MemoryM: error, read of " + f.getName() + " failed.");
-        System.exit(-1);
+
+      File commandsFile = new File(args[0]);
+
+      if (!(commandsFile.exists())) {
+        throw new NonExistentFileException(commandsFile.getName());
       }
+
+      if (!(commandsFile.canRead())) {
+        throw new FileReadException(commandsFile.getName());
+      }
+
+      File configFile = new File(args[1]);
+
+      // if config file pass as argument
+      if (args.length == 2) {
+        if (!(configFile.exists())) {
+          throw new NonExistentFileException(configFile.getName());
+        }
+        if (!(configFile.canRead())) {
+          throw new FileReadException(configFile.getName());
+        }
+      }
+    } catch(InsufficientArgumentsException err){
+      err.toString();
+    } catch(NonExistentFileException err){
+      err.toString();
+    } catch(FileReadException err){
+      err.toString();
     }
 
+    // refactor in controller
     kernel = new Kernel2();
     controlPanel = new ControlPanel2("Memory Management");
     if (args.length == 1) {
