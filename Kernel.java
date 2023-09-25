@@ -51,7 +51,7 @@ public class Kernel extends Thread {
           break;
 
           case "pagesize":
-          if (line[1].toLowerCase() == "power") {
+          if (line[1].toLowerCase().equals("power")) {
             block_page_size = (long) Math.pow(2, Integer.parseInt(line[2]));
           } else {
             block_page_size = Long.parseLong(line[1]);
@@ -87,7 +87,7 @@ public class Kernel extends Thread {
 
       while (config_scanner.hasNextLine()) {
         String[] line = config_scanner.nextLine().split(" ");
-        if (line[0] != "memset") { continue; }
+        if (!line[0].equals("memset")) { continue; }
         int id = Integer.parseInt(line[1]);
         if (id < 0 || id > no_virtual_pages) {
           config_scanner.close();
@@ -143,16 +143,16 @@ public class Kernel extends Thread {
     for (int i = 0; i < no_virtual_pages; i++) {
       not_mapped.add(i);
     }
+    int removed_n = 0;
     for (Page page_it : pages_vector) {
       int physical_aux = page_it.getPhysicalAddress();
-      if (physical_aux == -1) {
-        continue;
-      }
+      if (physical_aux == -1) { continue; }
       if (!not_mapped.contains(physical_aux)) {
         System.out.println("Kernel2: error, physical address " + physical_aux + " is repeated.");
         System.exit(-1);
       }
-      not_mapped.remove(physical_aux);
+      not_mapped.remove(physical_aux - removed_n);
+      removed_n ++;
     }
     for (Page page_it : pages_vector) {
       if (not_mapped.size() > (no_virtual_pages + 1) / 2 && page_it.getPhysicalAddress() == -1) {
@@ -221,38 +221,40 @@ public class Kernel extends Thread {
       control_panel.segmentation_Label.setText("P(" + page_num + ") S(" + segment_start + " - " + segment_end + ")");
     }
 
-    control_panel.paintPage(pages_vector.elementAt((int) page_num));
-
     Page page = pages_vector.elementAt((int) page_num);
     String message = "";
 
     if (page.getPhysicalAddress() == -1){
       message = instruction.getInstruction() + " " + Long.toString(instruction.getMinAddress(), address_radix) + "... page fault";
-      PageFault.replacePage(pages_vector, no_virtual_pages, (int) page_num, control_panel);
+      // PageFault.replacePage(pages_vector, no_virtual_pages, (int) page_num, control_panel);
+      int clock_hand = 0;
+      clock_hand = PageFault.replace_by_WSClock(pages_vector, no_virtual_pages, (int) page_num, control_panel, runs * 10, clock_hand);
       control_panel.page_fault_Label.setText("YES");
     } else {
       page.setTimeSinceTouched(0);
 
       boolean boolean_aux;
 
-      boolean_aux = instruction.getInstruction() == "READ" ? true : page.getReferenced();
+      boolean_aux = instruction.getInstruction().equals("READ") ? true : page.getReferenced();
       page.setReferenced(boolean_aux);
       
-      boolean_aux = instruction.getInstruction() == "WRITE" ? true : page.getModified();
+      boolean_aux = instruction.getInstruction().equals("WRITE") ? true : page.getModified();
       page.setModified(boolean_aux);
       
       message = instruction.getInstruction() + " " + Long.toString(instruction.getMinAddress(), address_radix) + "... okay";
     }
 
+    control_panel.paintPage(pages_vector.elementAt((int) page_num));
+
     if (do_stdout_log) { System.out.println(message); }
-    if (do_file_log ) { printLogFile(message); }
+    if (do_file_log  ) { printLogFile(message);       }
     
     for (Page page_it : pages_vector) {
       if (page_it.getPhysicalAddress() == -1) { continue; }
       page_it.setTimeSinceTouched(page_it.getTimeSinceTouched() + 10);
       page_it.setTimeInMemory(page_it.getTimeInMemory() + 10);
     }
-
+  
     runs++;
     control_panel.time_Label.setText(Integer.toString(runs * 10) + " (ns)");
   }

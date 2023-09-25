@@ -101,7 +101,7 @@ public class PageFault {
       
     int i = clock_hand;
     int frame_size = pages_vector.size();
-    final int TAU = 50;
+    final int TAU = 10;
     boolean referenced;
     boolean modified;
 
@@ -111,18 +111,21 @@ public class PageFault {
       referenced = page_to_replace.getReferenced();
       modified = page_to_replace.getModified();
       page_to_replace.setReferenced(false);
-
+      System.out.println("i:" + i);
+      System.out.println("referenced: " + referenced + " modified: " + modified);
+      System.out.println("time in memory: " + page_to_replace.getTimeInMemory()+ " time_since_touched: " + page_to_replace.getTimeSinceTouched());
+  
       if (referenced){
         page_to_replace.setReferenced(false);
         page_to_replace.setTimeSinceTouched(current_time);
         continue;
       } 
-      if (current_time - page_to_replace.getTimeSinceTouched() > TAU && modified){
-        page_to_replace.setReferenced(false);
+      if (page_to_replace.getTimeInMemory() - page_to_replace.getTimeSinceTouched() > TAU && modified){
+        page_to_replace.setModified(false);
         continue;
       }
-      if (current_time - page_to_replace.getTimeSinceTouched() > TAU && !modified){
-        int tr_aux = page_to_replace.getPhysicalAddress();
+      if (page_to_replace.getTimeInMemory() - page_to_replace.getTimeSinceTouched() > TAU && !modified){
+        int tr_aux = page_to_replace.getID();
         control_panel.removePhysicalPage(tr_aux);
         Page new_page = pages_vector.get(page_ID);
         new_page.setPhysicalAddress(tr_aux);
@@ -130,7 +133,6 @@ public class PageFault {
         page_to_replace.setPhysicalAddress(-1);
         return i;
       }
-
     }
   }
 }
