@@ -6,6 +6,7 @@ public class Kernel extends Thread {
   private int runs;
   private int run_cycles;
   private int no_virtual_pages;
+  private int clock_hand = 0;
   private long block_page_size;
   private long address_limit;
   private boolean do_file_log;
@@ -227,8 +228,7 @@ public class Kernel extends Thread {
     if (page.getPhysicalAddress() == -1){
       message = instruction.getInstruction() + " " + Long.toString(instruction.getMinAddress(), address_radix) + "... page fault";
       // PageFault.replacePage(pages_vector, no_virtual_pages, (int) page_num, control_panel);
-      int clock_hand = 0;
-      clock_hand = PageFault.replace_by_WSClock(pages_vector, no_virtual_pages, (int) page_num, control_panel, runs * 10, clock_hand);
+      this.clock_hand = PageFault.replace_by_WSClock(pages_vector, no_virtual_pages, (int) page_num, control_panel, runs * 10, this.clock_hand);
       control_panel.page_fault_Label.setText("YES");
     } else {
       page.setTimeSinceTouched(0);
