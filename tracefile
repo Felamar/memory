@@ -1,5 +1,6 @@
 READ 29000... okay
+READ bc100... page fault
 READ 60000... okay
 WRITE 9000... okay
 WRITE 2000... okay
-WRITE df7e4... page fault
+WRITE a411a... page fault
